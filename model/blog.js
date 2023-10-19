@@ -22,6 +22,11 @@ const blogSchema = mongoose.Schema({
         type: String,
         required: true
     },
+    status: {
+        type: String,
+        enum: ['published', 'draft'],
+        default: 'published', // Default status is "published"
+      },
     created_by:{
         type: mongoose.Schema.Types.ObjectId,
         ref: "users"

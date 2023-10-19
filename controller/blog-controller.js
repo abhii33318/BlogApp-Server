@@ -1,4 +1,5 @@
-const Blog = require('../model/blog')
+const Blog = require('../model/blog');
+
 /**
  * @swagger
  * components:
@@ -7,19 +8,17 @@ const Blog = require('../model/blog')
  *       type: object
  *       properties:
  *         blogImage:
- *              type:string
+ *           type: string
  *         title:
- *              type:string
- *         
+ *           type: string
  *         description:
- *              type:string
- *                
+ *           type: string
  *         username:
  *           type: string
  *         category:
  *           type: string
- * 
- * /Blogs:
+ *
+ * /blogs:
  *   get:
  *     summary: Get a list of all blogs
  *     tags: [Blogs]
@@ -33,41 +32,89 @@ const Blog = require('../model/blog')
  *               items:
  *                 $ref: '#/components/schemas/Blog'
  *       500:
- *         description: error
+ *         description: Server error
  *   post:
  *     summary: Create a new Blog
  *     description: Use this endpoint to create a new Blog.
  *     tags: [Blogs]
  *     requestBody:
- *       description: Item details
+ *       description: Blog details
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             properties:
- *              blogImage:
- *                  type:string
- *              title:
- *                  type:string
- *         
- *              description:
- *                  type:string
- *                
- *              username:
- *                  type: string
- *              category:
- *                  type: string
- *                
+ *             $ref: '#/components/schemas/Blog'
  *     responses:
- *       '201':
- *         description: Item created successfully.
- *       '400':
- *         description: Bad request. Check your request data.
+ *       201:
+ *         description: Blog created successfully
+ *       500:
+ *         description: Server error
+ *
+ * /blogs/{id}:
+ *   put:
+ *     summary: Update a Blog by ID
+ *     description: Use this endpoint to update an existing Blog by ID.
+ *     tags: [Blogs]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         description: ID of the Blog to update
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       description: Updated Blog details
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Blog'
+ *     responses:
+ *       200:
+ *         description: Blog updated successfully
+ *       404:
+ *         description: Blog not found
+ *       500:
+ *         description: Server error
+ *   delete:
+ *     summary: Delete a Blog by ID
+ *     description: Use this endpoint to delete an existing Blog by ID.
+ *     tags: [Blogs]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         description: ID of the Blog to delete
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Blog deleted successfully
+ *       404:
+ *         description: Blog not found
+ *       500:
+ *         description: Server error
+ *
+ *   get:
+ *     summary: Get a Blog by ID
+ *     description: Use this endpoint to retrieve a Blog by ID.
+ *     tags: [Blogs]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         description: ID of the Blog to retrieve
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Blog retrieved successfully
+ *       404:
+ *         description: Blog not found
+ *       500:
+ *         description: Server error
+ *
  */
- 
-
-
 
 
  const postBlog =async(req,res)=>{
@@ -134,6 +181,27 @@ const deletePost = async (request, response) => {
     }
 }
 
+
+const blogDraft=async (req, res) => {
+    try {
+      const blogDetails = req.body;
+      console.log(blogDetails)
+  
+      const newBlog = new Blog({
+        ...blogDetails,
+        status: 'draft', // Set status to "draft" when creating a draft post
+      });
+      
+
+      console.log("new blog is",newBlog)
+  
+      const savedBlog = await newBlog.save();
+      res.status(200).json(savedBlog);
+    } catch (error) {
+      console.error('Error creating draft blog post:', error);
+      res.status(500).json({ error: 'Could not create draft blog post' });
+    }
+  }
 const viewBlog = async (request,response)=>{
 
 try{
@@ -176,7 +244,8 @@ try{
 const getBlogdetails = async(req,res)=>{
     try{
        
-        let blogDetails = await Blog.find().populate('created_by');
+        let blogDetails = await Blog.find({ status: 'published' }).populate('created_by');
+
     
         return res.status(200).json({
             type:"success",
@@ -192,14 +261,45 @@ const getBlogdetails = async(req,res)=>{
             type:'error',
             data:{
                 message:"unable to fetch blog details"
-            }
+            } 
     })
     }
     
     }
+
+    const getDraftByUserId = async (req, res) => {
+        try {
+          // Extract the user ID from the request parameters
+          const userId = req.params.userId; // Assuming you pass the user's ID in the URL
+      
+          // Query for draft blogs associated with the specified user
+          let blogDetails = await Blog.find({
+            status: 'draft',
+            created_by: userId, // Filter by the user's ID
+          });
+      
+          return res.status(200).json({
+            type: 'success',
+            data: {
+              message: 'Draft blog details fetched successfully',
+              data: blogDetails,
+            },
+          });
+        } catch (error) {
+          return res.status(500).json({
+            type: 'error',
+            data: {
+              message: 'Unable to fetch draft blog details',
+            },
+          });
+        }
+      };
+      
 module.exports.getBlogdetails = getBlogdetails 
 module.exports.updatePost = updatePost  
 module.exports.deletePost = deletePost
 module.exports.blogfilter = blogfilter
 module.exports.postBlog= postBlog
 module.exports.viewBlog=viewBlog;
+module.exports.blogDraft = blogDraft;
+module.exports.getDraftByUserId = getDraftByUserId;

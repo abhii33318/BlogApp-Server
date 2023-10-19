@@ -13,25 +13,30 @@ const corsOptions ={
 router.use(cors(corsOptions));
 
 const {signupUser,loginUser} = require('../controller/user-controller')
-const{postBlog,blogfilter,getBlogdetails,updatePost,deletePost,viewBlog} = require('../controller/blog-controller')
+const{postBlog,blogfilter,getBlogdetails,updatePost,deletePost,viewBlog,blogDraft,getDraftByUserId} = require('../controller/blog-controller')
 const {uploadImage} = require('../controller/upload-controller')
-const { newComment, getComments, deleteComment }=require('../controller/commentcontroller');
+const { newComment, getComments, deleteComment,updateComment }=require('../controller/commentcontroller');
+const {newCategory,getCategory} = require('../controller/category-controller')
 
+router.get('/blogs',getBlogdetails)
+router.get('/blogs/:id', viewBlog);
 
-router.get('/Blogs',getBlogdetails)
-router.get('/Blogs/:id', viewBlog);
-
-router.post('/Users',signupUser)
-router.post('/login',loginUser)
-router.post('/Blogs',postBlog)
+router.post('/users',signupUser)
+router.post('/token',loginUser)
+router.post('/blogs',postBlog)
 // router.post('/blogFilter',blogfilter)
-router.post('/Image',upload.single('file'),uploadImage)
-router.put('/Blogs/:id',updatePost)
-router.delete('/Blogs/:id',deletePost)
+router.post('/image',upload.single('file'),uploadImage)
+router.put('/blogs/:id',updatePost)
+router.delete('/blogs/:id',deletePost)
+router.post('/saveDraft',blogDraft)
+router.get('/draft/:userId',getDraftByUserId)
 
 
 router.post('/comments/:id',newComment);
 router.get('/comments/:id', getComments);
 router.delete('/comments/:id', deleteComment);
+router.put('/comments/:id', updateComment);
+router.post('/category',newCategory);
+router.get('/category',getCategory)
 
 module.exports=router

@@ -1,7 +1,7 @@
-const User = require('../model/user')
-// const Token = require('../model/token.js')
-const bcrypt = require('bcrypt')
-const jwt = require ('jsonwebtoken')
+const User = require('../model/user');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+
 /**
  * @swagger
  * components:
@@ -11,23 +11,57 @@ const jwt = require ('jsonwebtoken')
  *       properties:
  *         username:
  *           type: string
+ *         password:
+ *           type: string
  *         email:
  *           type: string
- * 
- * /api/users:
- *   get:
- *     summary: Get a list of all users
+ *
+ * /users:
+ *   post:
+ *     summary: User registration
+ *     description: Use this endpoint to register a new user.
  *     tags: [Users]
+ *     requestBody:
+ *       description: User registration details
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/User'
  *     responses:
  *       200:
- *         description: A list of users
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/User'
+ *         description: User registration successful
+ *       400:
+ *         description: User already exists with the same username
+ *       500:
+ *         description: Server error
+ *
+ * /token:
+ *   post:
+ *     summary: User login
+ *     description: Use this endpoint to log in an existing user.
+ *     tags: [Users]
+ *     requestBody:
+ *       description: User login details
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               username:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: User login successful
+ *       400:
+ *         description: Username or password does not match
+ *       500:
+ *         description: Server error during login
  */
+
 
 console.log(User)
  const signupUser =async(req,res)=>{
@@ -79,7 +113,12 @@ const loginUser = async(request,response)=>{
     }
 
     try {
+        const hashPassword = await bcrypt.hash(request.body.password,10)
+
         let match = await bcrypt.compare(request.body.password, user.password);
+        // req.body.password = await bcrypt.hash(req.body.password,10)
+        console.log("password1",request.body.password)
+        console.log("password2",user.password)
         console.log(match)
         if (match) {
             const accessToken = jwt.sign(user.toJSON(), process.env.ACCESS_SECRET_KEY, { expiresIn: '15m'});
@@ -107,6 +146,7 @@ const loginUser = async(request,response)=>{
             response.status(400).json({ msg: 'Password does not match' })
         }
     } catch (error) {
+        console.log(error)
         response.status(500).json({ msg: 'error while login the user' })
     }
 }
