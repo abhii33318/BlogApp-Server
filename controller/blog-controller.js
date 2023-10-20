@@ -272,7 +272,7 @@ const getBlogdetails = async(req,res)=>{
           // Extract the user ID from the request parameters
           const userId = req.params.userId; // Assuming you pass the user's ID in the URL
       
-          // Query for draft blogs associated with the specified user
+          
           let blogDetails = await Blog.find({
             status: 'draft',
             created_by: userId, // Filter by the user's ID
@@ -289,7 +289,7 @@ const getBlogdetails = async(req,res)=>{
           return res.status(500).json({
             type: 'error',
             data: {
-              message: 'Unable to fetch draft blog details',
+              message: 'Unable to fetch draft blog detail',
             },
           });
         }
