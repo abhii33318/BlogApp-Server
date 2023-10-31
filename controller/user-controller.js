@@ -104,6 +104,75 @@ console.log(User)
     }
 }
 
+const updateProfile = async (req, res) => {
+    try {
+      const userId = req.params.id; // Replace with your actual user ID retrieval logic
+      const { name, email, profileImage, instagramLink, linkedinLink, facebookLink } = req.body;
+  
+      // Update the user's profile data in the database
+      await User.findByIdAndUpdate(userId, {
+        name,
+        email,
+        profileImage,
+        instagramLink,
+        linkedinLink,
+        facebookLink,
+      });
+  
+      return res.status(200).json({
+        type: 'success',
+        data: {
+          message: 'User profile updated successfully',
+        },
+      });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({
+        type: 'error',
+        data: {
+          message: 'User profile update failed',
+        },
+      });
+    }
+  };
+
+  const getUserDetails = async (req,res) =>{
+
+    try {
+        const userId = req.params.userId;
+    
+        // Use the User model to find the user by their ID
+        const user = await User.findById(userId);
+    
+        if (!user) {
+          return res.status(404).json({
+            type: 'error',
+            data: {
+              message: 'User not found',
+            },
+          });
+        }
+    
+        // Return the user data as a response
+        return res.status(200).json({
+          type: 'success',
+          data: {
+            user, // Return the user object
+          },
+        });
+      } catch (error) {
+        console.error('Error fetching user data: ', error);
+        return res.status(500).json({
+          type: 'error',
+          data: {
+            message: 'Internal server error',
+          },
+        });
+      }
+    
+
+  }
+
 const loginUser = async(request,response)=>{
     console.log(request.body)
     let user = await User.findOne({ username: request.body.username });
@@ -150,6 +219,35 @@ const loginUser = async(request,response)=>{
         response.status(500).json({ msg: 'error while login the user' })
     }
 }
+const forgotPassword =async(req,res)=>{
+
+  try {
+    console.log(req.body)
+    const { email, newPassword } = req.body;
+    
+
+    // Find the user by email
+    const user = await User.findOne({ email });
+
+    if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Hash the new password and update the user's password
+    req.body.newPassword = await bcrypt.hash(newPassword, 10);
+    user.password = req.body.newPassword;
+
+    await user.save();
+
+    return res.status(200).json({ message: 'Password reset successfully' });
+}
+catch (error) {
+  
+    console.log(error);
+    return res.status(500).json({ message: 'Error while resetting password' });
+} 
+
+}
 
 // const logoutUser = async (request, response) => {
 //     const token = request.body.token;
@@ -160,4 +258,7 @@ const loginUser = async(request,response)=>{
 
 module.exports.loginUser=loginUser
 module.exports.signupUser=signupUser
+module.exports.updateProfile=updateProfile
+module.exports.getUserDetails=getUserDetails
+module.exports.forgotPassword=forgotPassword
 // module.exports.logoutUser=logoutUser

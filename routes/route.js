@@ -12,16 +12,19 @@ const corsOptions ={
 }
 router.use(cors(corsOptions));
 
-const {signupUser,loginUser} = require('../controller/user-controller')
+const {signupUser,loginUser,updateProfile,getUserDetails,forgotPassword} = require('../controller/user-controller')
 const{postBlog,blogfilter,getBlogdetails,updatePost,deletePost,viewBlog,blogDraft,getDraftByUserId} = require('../controller/blog-controller')
 const {uploadImage} = require('../controller/upload-controller')
 const { newComment, getComments, deleteComment,updateComment }=require('../controller/commentcontroller');
 const {newCategory,getCategory} = require('../controller/category-controller')
+const{sendOTP,verifyOTP,updateOtp} = require('../controller/otp-controller')
 
 router.get('/blogs',getBlogdetails)
 router.get('/blogs/:id', viewBlog);
 
 router.post('/users',signupUser)
+router.put('/users/:id',updateProfile)
+router.get('/users/:userId',getUserDetails)
 router.post('/token',loginUser)
 router.post('/blogs',postBlog)
 // router.post('/blogFilter',blogfilter)
@@ -39,4 +42,9 @@ router.put('/comments/:id', updateComment);
 router.post('/category',newCategory);
 router.get('/category',getCategory)
 
+
+
+router.post('/users/forgotPassword',forgotPassword)
+router.post('/users/sentOTP',sendOTP)
+router.post('/users/verifyOTP',verifyOTP)
 module.exports=router

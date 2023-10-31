@@ -257,11 +257,13 @@ const getBlogdetails = async(req,res)=>{
     
     }catch(error)
     {
+      console.log(error)
         return res.status(500).json({
             type:'error',
             data:{
                 message:"unable to fetch blog details"
             } 
+           
     })
     }
     
@@ -270,7 +272,9 @@ const getBlogdetails = async(req,res)=>{
     const getDraftByUserId = async (req, res) => {
         try {
           // Extract the user ID from the request parameters
-          const userId = req.params.userId; // Assuming you pass the user's ID in the URL
+          const userId = req.params.userId; 
+          // Assuming you pass the user's ID in the URL
+          console.log("getDraftByUserId",userId)
       
           
           let blogDetails = await Blog.find({
