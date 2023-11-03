@@ -12,7 +12,7 @@ const corsOptions ={
 }
 router.use(cors(corsOptions));
 
-const {signupUser,loginUser,updateProfile,getUserDetails,forgotPassword} = require('../controller/user-controller')
+const {signupUser,loginUser,updateProfile,getUserDetails,forgotPassword, changePassword} = require('../controller/user-controller')
 const{postBlog,blogfilter,getBlogdetails,updatePost,deletePost,viewBlog,blogDraft,getDraftByUserId} = require('../controller/blog-controller')
 const {uploadImage} = require('../controller/upload-controller')
 const { newComment, getComments, deleteComment,updateComment }=require('../controller/commentcontroller');
@@ -47,4 +47,5 @@ router.get('/category',getCategory)
 router.post('/users/forgotPassword',forgotPassword)
 router.post('/users/sentOTP',sendOTP)
 router.post('/users/verifyOTP',verifyOTP)
+router.put('/users/changePassword/:id',changePassword)
 module.exports=router

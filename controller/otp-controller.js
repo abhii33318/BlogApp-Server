@@ -30,11 +30,17 @@ const sendOTP = async (req,res)=> {
     };
 
     try {
+        const user = await User.findOne({ email: req.body.email });
+        if(user){
         const info = await transporter.sendMail(mailOptions);
         console.log('Email sent: ', info.response);
         await updateOtp(req.body.email, otp); // Update the OTP in the database
         res.status(200).json({ otp }); 
         return otp;
+        }
+        else{
+            return res.status(404).json({ message: 'User not found' });
+        }
     } catch (error) {
         console.log('Error sending email: ', error);
         throw error;

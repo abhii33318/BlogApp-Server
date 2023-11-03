@@ -248,7 +248,39 @@ catch (error) {
 } 
 
 }
+const changePassword = async (request, response) => {
+  try {
+      console.log("inside")
+       console.log("Change Password",request.body)
+       console.log("User_id:",request.params.id);
+      const user = await User.findOne({ _id:request.params.id});
+      console.log(user)
+      if (!user) {
+          return response.status(404).json({ message: 'User not found' });
+      }
 
+      const inputPassword = request.body.currentpassword.trim();
+      const passwordFromDB = user.password
+      const isPasswordValid = await bcrypt.compare(inputPassword, passwordFromDB);
+      console.log("ghjgh,jgj",isPasswordValid)
+
+      if (!isPasswordValid) {
+          return response.status(401).json({ message: 'Current password is incorrect' });
+      }
+
+  
+      const newPasswordHash = await bcrypt.hash(request.body.newPassword, 10);
+      console.log("newPasswordHash",newPasswordHash);
+      user.password = newPasswordHash;
+      await user.save();
+
+      return response.status(200).json({ message: 'Password changed successfully' });
+  }
+  catch (error) {
+      console.log(error);
+      return response.status(500).json({ message: 'Error while changing password' });
+  }
+};
 // const logoutUser = async (request, response) => {
 //     const token = request.body.token;
 //     await Token.deleteOne({ token: token });
@@ -261,4 +293,5 @@ module.exports.signupUser=signupUser
 module.exports.updateProfile=updateProfile
 module.exports.getUserDetails=getUserDetails
 module.exports.forgotPassword=forgotPassword
+module.exports.changePassword=changePassword
 // module.exports.logoutUser=logoutUser
