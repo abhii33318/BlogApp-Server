@@ -35,6 +35,7 @@ router.post('/saveDraft',blogDraft)
 router.get('/draft/:userId',getDraftByUserId)
 
 
+
 router.post('/comments/:id',newComment);
 router.get('/comments/:id', getComments);
 router.delete('/comments/:id', deleteComment);

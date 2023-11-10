@@ -298,6 +298,8 @@ const getBlogdetails = async(req,res)=>{
           });
         }
       };
+
+      
       
 module.exports.getBlogdetails = getBlogdetails 
 module.exports.updatePost = updatePost  
@@ -307,3 +309,4 @@ module.exports.postBlog= postBlog
 module.exports.viewBlog=viewBlog;
 module.exports.blogDraft = blogDraft;
 module.exports.getDraftByUserId = getDraftByUserId;
+
