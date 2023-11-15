@@ -13,7 +13,6 @@ const sendOTP = async (req,res)=> {
     const otp = otpGenerator.generate(6, { upperCase: false, specialChars: false });
     console.log(otp)
 
-    // Send OTP to user's email
     let transporter = nodemailer.createTransport({
         service: 'Gmail', 
         auth: {
@@ -73,10 +72,7 @@ const verifyOTP = async (req, res) => {
         }
 
         if (user.otp === req.body.otp) {
-            // OTP matched, mark email as verified
-            // user.isEmailVerified = true;
-            // await user.save();
-
+            
             return res.status(200).json({ message: 'OTP verified successfully' });
         } else {
             return res.status(401).json({ message: 'Invalid OTP' });

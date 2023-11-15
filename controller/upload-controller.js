@@ -69,8 +69,7 @@ const uploadImage = async(req,res)=>{
         const uploadedFile = await s3.upload(params).promise();
     
        console.log(uploadedFile.Location)
-    //    res.send(uploadedFile.Location)
-    
+       
     return res.status(200).json({
         type:"success",
         data:{

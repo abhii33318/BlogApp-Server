@@ -7,17 +7,18 @@ const cors = require('cors')
 router.use(cors('*'))
 const corsOptions ={
     origin:['http://localhost:3000'], 
-    credentials:true,            //access-control-allow-credentials:true
+    credentials:true,            
     optionSuccessStatus:200
 }
 router.use(cors(corsOptions));
 
 const {signupUser,loginUser,updateProfile,getUserDetails,forgotPassword, changePassword} = require('../controller/user-controller')
-const{postBlog,blogfilter,getBlogdetails,updatePost,deletePost,viewBlog,blogDraft,getDraftByUserId} = require('../controller/blog-controller')
+const{postBlog,getBlogdetails,updatePost,deletePost,viewBlog,blogDraft,getDraftByUserId} = require('../controller/blog-controller')
 const {uploadImage} = require('../controller/upload-controller')
 const { newComment, getComments, deleteComment,updateComment }=require('../controller/commentcontroller');
 const {newCategory,getCategory} = require('../controller/category-controller')
-const{sendOTP,verifyOTP,updateOtp} = require('../controller/otp-controller')
+const{sendOTP,verifyOTP} = require('../controller/otp-controller')
+const common = require('../common/common')
 
 router.get('/blogs',getBlogdetails)
 router.get('/blogs/:id', viewBlog);
@@ -39,7 +40,7 @@ router.get('/draft/:userId',getDraftByUserId)
 router.post('/comments/:id',newComment);
 router.get('/comments/:id', getComments);
 router.delete('/comments/:id', deleteComment);
-router.put('/comments/:id', updateComment);
+router.put('/comments/:id',common.verifyToken, updateComment);
 router.post('/category',newCategory);
 router.get('/category',getCategory)
 

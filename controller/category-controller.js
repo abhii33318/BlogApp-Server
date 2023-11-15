@@ -2,7 +2,6 @@ const category = require('../model/category')
 const newCategory = async (req, res) => {
     try {
         const categoryDetails = req.body;
-        // Extract the user ID from the request
         const userId = categoryDetails.userId;
 
         // Create a new category object with user ID

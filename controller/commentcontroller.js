@@ -1,4 +1,6 @@
+const comment = require('../model/comment');
 const Comment = require('../model/comment');
+
 
 
 /**
@@ -79,10 +81,10 @@ const Comment = require('../model/comment');
 const newComment = async (req, res) => {
   try {
     const comment = new Comment({
-      name: req.body.name, // Modify this to match your comment data structure
+      name: req.body.name,
       postId: req.params.id,
       comments: req.body.text, 
-      UserId: req.body.UserId// Modify this to match your comment data structure
+      UserId: req.body.UserId
     });
     console.log(comment)
     const savedComment = await comment.save();
@@ -112,12 +114,29 @@ const deleteComment = async (request, response) => {
   }
 };
 const updateComment = async (req, res) => {
+  console.log(req.user)
   try {
-    const updatedComment = await Comment.findByIdAndUpdate(
-      req.params.id, // Comment ID to update
-      { comments: req.body.text }, // Update the 'comments' field with the new text
-      { new: true } // Return the updated comment
-    );
+    
+    const updatedComment = await Comment.updateOne(
+      {
+        _id: req.params.id,
+        UserId: req.user._id,
+        
+        createdAt: {
+          $gte: new Date(new Date() - 30 * 60 * 1000) // Check if createdAt is within the last 30 minutes
+        }
+      },
+      {
+        $set: {
+          comments: req.body.text
+          
+        }
+      },
+      {
+        returnDocument: 'after' // Return the updated document
+      }
+    )
+    console.log("updated comment",updatedComment)
 
     if (!updatedComment) {
       return res.status(404).json({ error: 'Comment not found' });

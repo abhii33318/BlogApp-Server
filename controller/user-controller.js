@@ -1,6 +1,7 @@
 const User = require('../model/user');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const common = require('../common/common')
 
 /**
  * @swagger
@@ -106,10 +107,9 @@ console.log(User)
 
 const updateProfile = async (req, res) => {
     try {
-      const userId = req.params.id; // Replace with your actual user ID retrieval logic
+      const userId = req.params.id; 
       const { name, email, profileImage, instagramLink, linkedinLink, facebookLink } = req.body;
   
-      // Update the user's profile data in the database
       await User.findByIdAndUpdate(userId, {
         name,
         email,
@@ -140,8 +140,6 @@ const updateProfile = async (req, res) => {
 
     try {
         const userId = req.params.userId;
-    
-        // Use the User model to find the user by their ID
         const user = await User.findById(userId);
     
         if (!user) {
@@ -185,25 +183,25 @@ const loginUser = async(request,response)=>{
         const hashPassword = await bcrypt.hash(request.body.password,10)
 
         let match = await bcrypt.compare(request.body.password, user.password);
-        // req.body.password = await bcrypt.hash(req.body.password,10)
+        
         console.log("password1",request.body.password)
         console.log("password2",user.password)
         console.log(match)
         if (match) {
-            const accessToken = jwt.sign(user.toJSON(), process.env.ACCESS_SECRET_KEY, { expiresIn: '15m'});
-            console.log(accessToken)
-
-            // const refreshToken = jwt.sign(user.toJSON(), process.env.REFRESH_SECRET_KEY);
             
-            // const newToken = new Token({ token: refreshToken });
-            // await newToken.save();
+            let payload = {
+              _id:user._id,
+              username:user.username
+            }
+            const token = await common.token(payload)
+            console.log(token)
         
             response.status(200).json({
                 type:"success",
                 data:{
                 message:"User registration was Successful",
                 data:{
-                    accessToken: accessToken,
+                    accessToken: token,
                     name: user.name, 
                     username: user.username,
                     userId : user._id
@@ -262,7 +260,7 @@ const changePassword = async (request, response) => {
       const inputPassword = request.body.currentpassword.trim();
       const passwordFromDB = user.password
       const isPasswordValid = await bcrypt.compare(inputPassword, passwordFromDB);
-      console.log("ghjgh,jgj",isPasswordValid)
+      console.log("password",isPasswordValid)
 
       if (!isPasswordValid) {
           return response.status(401).json({ message: 'Current password is incorrect' });
@@ -281,12 +279,7 @@ const changePassword = async (request, response) => {
       return response.status(500).json({ message: 'Error while changing password' });
   }
 };
-// const logoutUser = async (request, response) => {
-//     const token = request.body.token;
-//     await Token.deleteOne({ token: token });
 
-//     response.status(204).json({ msg: 'logout successfull' });
-// }
 
 module.exports.loginUser=loginUser
 module.exports.signupUser=signupUser
@@ -294,4 +287,3 @@ module.exports.updateProfile=updateProfile
 module.exports.getUserDetails=getUserDetails
 module.exports.forgotPassword=forgotPassword
 module.exports.changePassword=changePassword
-// module.exports.logoutUser=logoutUser

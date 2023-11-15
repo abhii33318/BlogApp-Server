@@ -117,196 +117,193 @@ const Blog = require('../model/blog');
  */
 
 
- const postBlog =async(req,res)=>{
-    try{
-        console.log("inside blogfrnkjgn5tjkgn6")
-        console.log("body",req.body)
-        
-        const blogDetails = req.body;
-        
-        const newBlog= new Blog(blogDetails);
-        
-        await newBlog.save();
+const postBlog = async (req, res) => {
+  try {
+    console.log("inside blogfrnkjgn5tjkgn6")
+    console.log("body", req.body)
 
-        // console.log(req.params.id)
-        return res.status(200).json({
-            type:"success",
-            data:{
-                message:"Blog created Successfully",
-                data:[]
-            }
-            })
-    }catch(error){
-        //console.log(error)
-        return res.status(500).json({
-            type:'error',
-            data:{
-                message:"blog creation failed"
-            }
+    const blogDetails = req.body;
+
+    const newBlog = new Blog(blogDetails);
+
+    await newBlog.save();
+
+    // console.log(req.params.id)
+    return res.status(200).json({
+      type: "success",
+      data: {
+        message: "Blog created Successfully",
+        data: []
+      }
     })
-    }
+  } catch (error) {
+    //console.log(error)
+    return res.status(500).json({
+      type: 'error',
+      data: {
+        message: "blog creation failed"
+      }
+    })
+  }
 }
 const updatePost = async (request, response) => {
+  console.log("inside update")
+  try {
     console.log("inside update")
-    try {
-        console.log("inside update")
-        let blogId = request.params.id;
+    let blogId = request.params.id;
 
-        delete request.params.id
-        const post = await Blog.findById(blogId);
+    delete request.params.id
+    const post = await Blog.findById(blogId);
 
-        if (!post) {
-            response.status(404).json({ msg: 'blog not found' })
-        }
-        
-        await Blog.findByIdAndUpdate( blogId, { $set: request.body })
-
-        response.status(200).json('post updated successfully');
-    } catch (error) {
-        response.status(500).json(error);
+    if (!post) {
+      response.status(404).json({ msg: 'blog not found' })
     }
+
+    await Blog.findByIdAndUpdate(blogId, { $set: request.body })
+
+    response.status(200).json('post updated successfully');
+  } catch (error) {
+    response.status(500).json(error);
+  }
 }
 
 const deletePost = async (request, response) => {
-    try {
-        const post = await Blog.deleteOne({_id:request.params.id});
-        console.log(request.query)
-        console.log("post:",post)
-    
-        // await post.delete()
+  try {
+    const post = await Blog.deleteOne({ _id: request.params.id });
+    console.log(request.query)
+    console.log("post:", post)
 
-        response.status(200).json('post deleted successfully');
-    } catch (error) {
-        response.status(500).json(error)
-    }
+    // await post.delete()
+
+    response.status(200).json('post deleted successfully');
+  } catch (error) {
+    response.status(500).json(error)
+  }
 }
 
 
-const blogDraft=async (req, res) => {
-    try {
-      const blogDetails = req.body;
-      console.log(blogDetails)
-  
-      const newBlog = new Blog({
-        ...blogDetails,
-        status: 'draft', // Set status to "draft" when creating a draft post
-      });
-      
+const blogDraft = async (req, res) => {
+  try {
+    const blogDetails = req.body;
+    console.log(blogDetails)
 
-      console.log("new blog is",newBlog)
-  
-      const savedBlog = await newBlog.save();
-      res.status(200).json(savedBlog);
-    } catch (error) {
-      console.error('Error creating draft blog post:', error);
-      res.status(500).json({ error: 'Could not create draft blog post' });
-    }
+    const newBlog = new Blog({
+      ...blogDetails,
+      status: 'draft', // Set status to "draft" when creating a draft post
+    });
+
+
+    console.log("new blog is", newBlog)
+
+    const savedBlog = await newBlog.save();
+    res.status(200).json(savedBlog);
+  } catch (error) {
+    console.error('Error creating draft blog post:', error);
+    res.status(500).json({ error: 'Could not create draft blog post' });
   }
-const viewBlog = async (request,response)=>{
+}
+const viewBlog = async (request, response) => {
 
-try{
+  try {
     console.log("inside view")
     console.log(request.params.id)
     const blogDet = await Blog.find({ _id: request.params.id }).populate('created_by');
     console.log(blogDet)
     response.status(200).json(blogDet);
-} catch (error) {
+  } catch (error) {
     response.status(500).json(error)
-}
+  }
 }
 
 
-const blogfilter = async(req,res)=>{
-try{
-    let category=req.body.category
-    let blogDetails = await Blog.find({category:category})
+const blogfilter = async (req, res) => {
+  try {
+    let category = req.body.category
+    let blogDetails = await Blog.find({ category: category })
 
     return res.status(200).json({
-        type:"success",
-        data:{
-            message:"Blog details fetched Successfully",
-            data:blogDetails
-        }
-        })
-
-}catch(error)
-{
-    return res.status(500).json({
-        type:'error',
-        data:{
-            message:"unable to fetch blog details"
-        }
-})
-}
-
-}
-
-const getBlogdetails = async(req,res)=>{
-    try{
-       
-        let blogDetails = await Blog.find({ status: 'published' }).populate('created_by');
-
-    
-        return res.status(200).json({
-            type:"success",
-            data:{
-                message:"Blog details fetched Successfully",
-                data:blogDetails
-            }
-            })
-    
-    }catch(error)
-    {
-      console.log(error)
-        return res.status(500).json({
-            type:'error',
-            data:{
-                message:"unable to fetch blog details"
-            } 
-           
+      type: "success",
+      data: {
+        message: "Blog details fetched Successfully",
+        data: blogDetails
+      }
     })
-    }
-    
-    }
 
-    const getDraftByUserId = async (req, res) => {
-        try {
-          // Extract the user ID from the request parameters
-          const userId = req.params.userId; 
-          // Assuming you pass the user's ID in the URL
-          console.log("getDraftByUserId",userId)
-      
-          
-          let blogDetails = await Blog.find({
-            status: 'draft',
-            created_by: userId, // Filter by the user's ID
-          });
-      
-          return res.status(200).json({
-            type: 'success',
-            data: {
-              message: 'Draft blog details fetched successfully',
-              data: blogDetails,
-            },
-          });
-        } catch (error) {
-          return res.status(500).json({
-            type: 'error',
-            data: {
-              message: 'Unable to fetch draft blog detail',
-            },
-          });
-        }
-      };
+  } catch (error) {
+    return res.status(500).json({
+      type: 'error',
+      data: {
+        message: "unable to fetch blog details"
+      }
+    })
+  }
 
-      
-      
-module.exports.getBlogdetails = getBlogdetails 
-module.exports.updatePost = updatePost  
+}
+
+const getBlogdetails = async (req, res) => {
+  try {
+
+    let blogDetails = await Blog.find({ status: 'published' }).populate('created_by');
+
+
+    return res.status(200).json({
+      type: "success",
+      data: {
+        message: "Blog details fetched Successfully",
+        data: blogDetails
+      }
+    })
+
+  } catch (error) {
+    console.log(error)
+    return res.status(500).json({
+      type: 'error',
+      data: {
+        message: "unable to fetch blog details"
+      }
+
+    })
+  }
+
+}
+
+const getDraftByUserId = async (req, res) => {
+  try {
+
+    const userId = req.params.userId;
+    console.log("getDraftByUserId", userId)
+
+
+    let blogDetails = await Blog.find({
+      status: 'draft',
+      created_by: userId,
+    });
+
+    return res.status(200).json({
+      type: 'success',
+      data: {
+        message: 'Draft blog details fetched successfully',
+        data: blogDetails,
+      },
+    });
+  } catch (error) {
+    return res.status(500).json({
+      type: 'error',
+      data: {
+        message: 'Unable to fetch draft blog detail',
+      },
+    });
+  }
+};
+
+
+
+module.exports.getBlogdetails = getBlogdetails
+module.exports.updatePost = updatePost
 module.exports.deletePost = deletePost
 module.exports.blogfilter = blogfilter
-module.exports.postBlog= postBlog
-module.exports.viewBlog=viewBlog;
+module.exports.postBlog = postBlog
+module.exports.viewBlog = viewBlog;
 module.exports.blogDraft = blogDraft;
 module.exports.getDraftByUserId = getDraftByUserId;
 
